@@ -1,0 +1,116 @@
+<html>
+    <head>
+        <title>Socket</title>
+        <style>
+            #chat{
+                height:500px;
+            }
+            #contentWrap{
+                display: none;
+            }
+            #chatWrap{
+                float:left;
+                border: 1px solid #000;
+            }
+            .error{
+                color:red;
+            }
+            .whisper{
+                color:grey;
+                font-style: italic;
+            }
+            #mg{
+                width:100%;
+                height: 300px;
+                display: none;
+                border: 1px solid black;;
+            }
+        </style>
+    </head>
+    <body>
+    <div id="nickWrap">
+        <p>Enter Username</p>
+        <p id="nickError"></p>
+        <form id="setNick">
+            <input type="text" size="35" id="nickname">
+            <input type="submit">
+        </form>
+    </div>
+    <div id="contentWrap">
+        <div id="chatWrap">
+            <div id="chat"></div>
+                <form id="send-message">
+                    <input id="message" size="35"></input>
+                    <input type="submit"></input>
+                </form>
+        </div>
+        <div id="users"></div>
+    </div>
+    <div id="mg"></div>
+    <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        jQuery(function($){
+            var socket=io.connect();
+            var $messageForm=$('#send-message');
+            var $messageBox=$('#message');
+            var $chat=$('#chat');
+            var $nickForm=$('#setNick');
+            var $nickError=$('#nickError');
+            var $nickBox=$('#nickname');
+            var $users=$('#users');
+            var $loku=$('#loku');
+            var $mg=$('#mg');
+            
+            $nickForm.submit(function(e){
+                e.preventDefault();
+                //checkcing if username is valid so we send value
+                socket.emit('new user',$nickBox.val(),function(data){
+                    if(data){
+                        $('#nickWrap').hide();
+                        $('#contentWrap').show();
+                    }
+                    else{
+                        $nickError.html('User name is already taken');
+                    }
+                });
+                $nickBox.val('');
+            });
+
+            $messageForm.submit(function(e){
+                e.preventDefault();
+                socket.emit('send message',$messageBox.val(),function(data){
+                    $chat.append('<span class="error">'+data+"</span><br>");
+                });
+                $messageBox.val('');
+            });
+            
+            socket.on('usernames',function(data){
+                var html='';
+                for(var i=0;i<data.length;i++){
+                    html+='<button id="loku">'+data[i]+'</button><br>';
+                }
+                $users.html(html);
+            });
+            $loku.click(function(){
+                console.log("heyyy");
+                $('#mg').show();
+            });
+            socket.on('whisper',function(data){
+                $chat.append('<span class="whisper"><b>'+data.nick+'</b>'+":"+data.msg+"</span><br>");
+            })
+            socket.on('new message',function(data){
+                displayMsg(data);
+            });
+            socket.on('load old msgs',function(docs){
+                for(var i=0;i<docs.length;i++){
+                    displayMsg(docs[i]);
+                }
+            });
+            function displayMsg(data){
+                $chat.append('<b>'+data.nick+'</b>'+":"+data.msg+"<br>");
+            }
+        });
+    </script>
+    </body>
+</html>
