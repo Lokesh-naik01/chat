@@ -6,8 +6,9 @@ var server=require('http').createServer(app);
 var io=require('socket.io')(server);
 var mongoose=require('mongoose');
 var users={};
-server.listen(3000);
 const port = process.env.PORT || 3000;
+server.listen(port);
+
 mongoose.connect('mongodb+srv://lokesh:lokesh@cluster0.jso4p.mongodb.net/chatapp?retryWrites=true&w=majority',{useNewUrlParser:true},{useUnifiedTopology: true});
 var conn=mongoose.conection;
 var chatSchema=mongoose.Schema({
