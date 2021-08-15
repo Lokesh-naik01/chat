@@ -9,7 +9,7 @@ var users={};
 const port = process.env.PORT || 3000;
 server.listen(port);
 
-mongoose.connect('mongodb+srv://lokesh:lokesh@cluster0.jso4p.mongodb.net/chatapp?retryWrites=true&w=majority',{useNewUrlParser:true},{useUnifiedTopology: true});
+mongoose.connect('mongodb://localhost:27017/chat',{useNewUrlParser:true},{useUnifiedTopology: true});
 var conn=mongoose.conection;
 var chatSchema=mongoose.Schema({
     nick:String,
